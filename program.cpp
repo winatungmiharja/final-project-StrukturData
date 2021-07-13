@@ -162,9 +162,18 @@ class CRUD {
         getline(cin,mahasiswa.nama);
         cout << "NIP : ";
         cin >> mahasiswa.NIP;
-        size++;
-        _addData(mahasiswa);
-        cout << endl << "Data mahasiswa berhasil di-input" << endl;
+
+        if(_findNIP(mahasiswa.NIP))
+        {
+            cout << endl << "Data mahasiswa gagal di-input" << endl; 
+            cout << endl << "karena data mahasiswa sudah ada di Database" << endl;
+        }
+        else
+        {
+            _addData(mahasiswa);
+            size++;
+            cout << endl << "Data mahasiswa berhasil di-input" << endl;    
+        }
         return;
     }
 
@@ -206,6 +215,15 @@ class CRUD {
                     break;
 
                 case 3:
+                    cout << "Nama : " ;
+                    cin.get();
+                    getline(cin,mahasiswaBaru.nama);
+                    cout << "NIP : " ;
+                    getline(cin,mahasiswaBaru.NIP);
+                    _updateData(mahasiswaBaru,idMahasiswa);
+                    return;
+
+                case 4:
                     cout << "Perbarui data dibatalkan \n";
                     return;
 
@@ -260,6 +278,18 @@ class CRUD {
     }
 
     private :
+    
+    bool _findNIP(string NIP) {
+        for(int i=0; i<data.size();i++)
+        {
+            if(data[i].NIP == NIP)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     string _formatNama (string &temp) {
         string nama=temp;
         int sz = nama.length();
@@ -303,11 +333,12 @@ class CRUD {
         cout << "==> PILIH DATA YANG AKAN DIPERBARUI \n \n";
         cout << "1. Perbarui Nama" << endl;
         cout << "2. Perbarui NIP" << endl;
-        cout << "3. Batal" << endl;
+        cout << "3. Perbarui Nama dan NRP" << endl;
+        cout << "4. Batal" << endl;
         _printQueryDivider();
         cout << "Masukan Pilihan : ";
         cin >> option;
-        if(option<=3 && option>=1)
+        if(option<=4 && option>=1)
         {
             return option;
         }
@@ -360,6 +391,34 @@ class CRUD {
             else {
             temp <<  mahasiswa.NIP << endl;
             }
+        }
+        read.close();
+        temp.close();
+        remove("nip.txt");
+        rename("temp.txt", "nip.txt");
+        return;
+    }
+
+    void _updateData(identitas mahasiswaBaru, int id) {
+        ofstream temp;
+        ifstream read;
+        temp.open("temp.txt");
+        read.open("nip.txt");
+        identitas mahasiswa;
+        int counter=0;
+        while (getline(read, mahasiswa.nama)) {
+            read >> mahasiswa.NIP;
+            read.ignore();
+            if(counter==id)
+            {
+                temp << _formatNama(mahasiswaBaru.nama) << endl;
+                temp << mahasiswaBaru.NIP << endl;
+            }
+            else {
+                temp << mahasiswa.nama << endl;
+                temp << mahasiswa.NIP << endl;
+            }
+            counter++;
         }
         read.close();
         temp.close();
